@@ -34,8 +34,7 @@ Known reproduction:
 5. Wait for all requests to finish.
 
 The preview may show Welcome Bonus / German while Weekend Spins / French
-remains selected. Changing only the language can also display content cached
-for a previous language.
+remains selected. Changing only the language can produce a similar problem.
 
 ## Task A: diagnose and fix the preview defect
 
@@ -43,19 +42,20 @@ Investigate the existing implementation and fix the inconsistency.
 
 The result must:
 
-- Always show the current promotion and locale after requests settle.
-- Prevent an earlier success or error from replacing the current result.
-- Keep cached preview content separate by promotion and locale.
-- Avoid state updates after the relevant component unmounts.
+- Always show information that belongs to the currently selected promotion and
+  language after loading settles.
+- Keep preview content and operational feedback consistent with the visible
+  selection during rapid interaction and on slow connections.
+- Continue to behave correctly after changing only the language.
+- Leave no unexpected warnings or side effects after navigating away.
 - Distinguish loading, error, empty, and success states.
 - Provide a functional, accessible retry action for the current selection.
-- Never present old content as belonging to a newly selected item. Clearly
-  labelled stale/updating content is acceptable.
+- Never present unrelated content as belonging to the visible selection.
+  Clearly labelled updating content is acceptable.
 - Keep the rest of the application usable while the preview loads.
 
-Do not add a state-management or request-management library solely for this
-issue. The mocked API supports `AbortSignal`, errors, caching, and deliberately
-out-of-order responses. Do not replace it with static data.
+Work within the existing dependencies, and do not replace the mocked API with
+static data.
 
 ## Task B: implement publication readiness
 
@@ -97,18 +97,13 @@ stack at small widths.
 
 ## Required regression test
 
-Add at least one deterministic behavioural test that:
+Add at least one deterministic behavioural regression test for the reported
+incident. It must exercise rapid selection changes, verify the final visible
+content, and fail against the original implementation.
 
-1. Starts preview request A.
-2. Changes promotion or locale and starts request B.
-3. Resolves B first.
-4. Resolves A afterward.
-5. Verifies that B remains visible.
-
-Do not use real timing where controlled promises or fake timers can be used. A
-test that only checks that rendering returned a container is insufficient.
-Useful additional tests cover stale errors, locale cache separation, readiness,
-HTTPS validation, retry, and optional translations.
+Do not depend on real network timing. A test that only checks that rendering
+returned a container is insufficient. Useful additional tests cover failure and
+retry behavior, readiness, HTTPS validation, and optional translations.
 
 ## AI use
 
@@ -157,8 +152,8 @@ Run and reproduce the application, inspect the code, and create `DIAGNOSIS.md`
 
 ### Minutes 15–65
 
-Implement the core fix, request/cache behavior, operational preview states,
-publication readiness, and the start of a regression test.
+Implement the core fix, operational preview states, publication readiness, and
+the start of a regression test.
 
 ### Minutes 65–85
 

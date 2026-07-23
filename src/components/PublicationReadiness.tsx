@@ -9,7 +9,6 @@ export function PublicationReadiness({
   promotion,
   onPublish,
 }: PublicationReadinessProps) {
-  // CMS-1842: implement the publication checks described in ASSESSMENT.md.
   const isReady = false;
 
   return (

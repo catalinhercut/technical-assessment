@@ -205,7 +205,6 @@ export async function getPromotionPreview(
   locale: Locale,
   signal?: AbortSignal,
 ): Promise<PromotionPreview> {
-  // Repeat previews are cached to keep the editor responsive.
   const cached = previewCache.get(promotionId);
 
   if (cached) {
