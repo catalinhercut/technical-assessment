@@ -131,6 +131,33 @@ let promotions: Promotion[] = [
   },
 ];
 
+const requestedCatalogueSize = Number.parseInt(
+  import.meta.env.VITE_CATALOGUE_SIZE ?? String(promotions.length),
+  10,
+);
+
+if (
+  Number.isFinite(requestedCatalogueSize) &&
+  requestedCatalogueSize > promotions.length
+) {
+  const templates = structuredClone(promotions);
+  const generatedPromotions = Array.from(
+    { length: requestedCatalogueSize - promotions.length },
+    (_, index): Promotion => {
+      const template = templates[index % templates.length];
+      const sequence = index + templates.length + 1;
+
+      return {
+        ...structuredClone(template),
+        id: `regional-campaign-${sequence}`,
+        name: `Regional Campaign ${sequence.toString().padStart(4, "0")}`,
+      };
+    },
+  );
+
+  promotions = [...promotions, ...generatedPromotions];
+}
+
 const mockDelays: Record<string, number> = {
   "welcome-bonus:de": 900,
   "weekend-spins:fr": 120,

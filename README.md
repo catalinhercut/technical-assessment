@@ -10,13 +10,20 @@ npm install
 npm run dev
 ```
 
-Open the URL printed by Vite. The application route is `/promotions`.
+Open the URL printed by Vite. The development server defaults to port `5174`
+and the application route is `/promotions`.
 
 Run the automated tests and production build with:
 
 ```bash
 npm test
 npm run build
+```
+
+The separate high-volume catalogue scenario can be started with:
+
+```bash
+npm run dev:performance
 ```
 
 The project intentionally contains an intermittent production defect and an

@@ -95,6 +95,53 @@ disabled publication through colour alone or unexpectedly reset focus.
 The page must not overflow horizontally at a 375-pixel viewport; panels may
 stack at small widths.
 
+## Task D: feature-flag safety
+
+The new **Promotion activity** panel is being rolled out gradually through the
+mocked `promotion-activity` feature flag. The flag service can return enabled,
+disabled, or an error.
+
+Make the rollout safe:
+
+- Show the panel only after the flag is explicitly enabled.
+- Do not request promotion activity while the flag is disabled.
+- Do not briefly expose the panel while the flag is unresolved.
+- A flag-service failure must leave the feature off without blocking the
+  promotion editor, preview, or publication workflow.
+- Activity shown after changing promotions must belong to the current
+  promotion.
+- Navigating away must not cause warnings or delayed UI updates.
+
+Add a deterministic test covering at least the disabled or error case and
+verify that the activity endpoint is not called when the feature is off. Do not
+replace the runtime flag service with a build-time constant.
+
+## Task E: catalogue performance
+
+Run the high-volume scenario with:
+
+```bash
+npm run dev:performance
+```
+
+It loads the same application with 1,200 promotion records. Use browser
+performance tooling or the React Profiler to identify why catalogue search or
+editing content becomes less responsive.
+
+Make one focused, maintainable improvement while preserving filtering,
+selection, keyboard behavior, and the correctness work from Task A. Record the
+following in `PERFORMANCE.md`:
+
+- The interaction measured and test environment
+- Before and after evidence
+- The bottleneck you identified
+- Why the change addresses it
+- Remaining limitations
+
+The evidence can be concise. A synthetic benchmark with no relationship to a
+real interaction is insufficient, and adding a large dependency solely for
+this task is discouraged.
+
 ## Required regression test
 
 Add at least one deterministic behavioural regression test for the reported
@@ -153,7 +200,8 @@ Run and reproduce the application, inspect the code, and create `DIAGNOSIS.md`
 ### Minutes 15–65
 
 Implement the core fix, operational preview states, publication readiness, and
-the start of a regression test.
+the start of a regression test. If the core behavior is secure, begin the
+feature-flag or performance task.
 
 ### Minutes 65–85
 
@@ -179,7 +227,9 @@ post-deployment monitoring, recovery/rollback, and remaining risks.
 2. Meaningful regression test
 3. Publication validation
 4. Loading, error, empty, and retry states
-5. Changed requirement
-6. Visual polish
+5. Feature-flag safety
+6. Catalogue performance
+7. Changed requirement
+8. Visual polish
 
 A smaller verified implementation is preferable to a larger unverified one.
