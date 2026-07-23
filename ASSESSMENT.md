@@ -95,53 +95,6 @@ disabled publication through colour alone or unexpectedly reset focus.
 The page must not overflow horizontally at a 375-pixel viewport; panels may
 stack at small widths.
 
-## Task D: feature-flag safety
-
-The new **Promotion activity** panel is being rolled out gradually through the
-mocked `promotion-activity` feature flag. The flag service can return enabled,
-disabled, or an error.
-
-Make the rollout safe:
-
-- Show the panel only after the flag is explicitly enabled.
-- Do not request promotion activity while the flag is disabled.
-- Do not briefly expose the panel while the flag is unresolved.
-- A flag-service failure must leave the feature off without blocking the
-  promotion editor, preview, or publication workflow.
-- Activity shown after changing promotions must belong to the current
-  promotion.
-- Navigating away must not cause warnings or delayed UI updates.
-
-Add a deterministic test covering at least the disabled or error case and
-verify that the activity endpoint is not called when the feature is off. Do not
-replace the runtime flag service with a build-time constant.
-
-## Task E: catalogue performance
-
-Run the high-volume scenario with:
-
-```bash
-npm run dev:performance
-```
-
-It loads the same application with 1,200 promotion records. Use browser
-performance tooling or the React Profiler to identify why catalogue search or
-editing content becomes less responsive.
-
-Make one focused, maintainable improvement while preserving filtering,
-selection, keyboard behavior, and the correctness work from Task A. Record the
-following in `PERFORMANCE.md`:
-
-- The interaction measured and test environment
-- Before and after evidence
-- The bottleneck you identified
-- Why the change addresses it
-- Remaining limitations
-
-The evidence can be concise. A synthetic benchmark with no relationship to a
-real interaction is insufficient, and adding a large dependency solely for
-this task is discouraged.
-
 ## Required regression test
 
 Add at least one deterministic behavioural regression test for the reported
@@ -176,11 +129,20 @@ Create `AI_USAGE.md` with:
 
 Brief factual entries are enough.
 
-## Checkpoints
+## Suggested working flow and checkpoints
 
-### Minute 15
+The assessment is designed for approximately 120 minutes, but the stages are
+guidance rather than fixed cut-offs. Setup problems, clarification time, and a
+candidate's chosen sequencing may shift a checkpoint. The evaluator will tell
+you before recording a snapshot or introducing new material.
 
-Run and reproduce the application, inspect the code, and create `DIAGNOSIS.md`
+You may rebalance time between stages, provided the final submission is ready
+at the agreed end of the exercise.
+
+### Orientation checkpoint
+
+During the opening part of the exercise—typically the first 15–20 minutes—run
+and reproduce the application, inspect the code, and create `DIAGNOSIS.md`
 (about 250 words maximum):
 
 ```md
@@ -197,29 +159,38 @@ Run and reproduce the application, inspect the code, and create `DIAGNOSIS.md`
 ## Current uncertainty
 ```
 
-### Minutes 15–65
+The evaluator may capture an early snapshot once you have recorded a credible
+diagnosis. You do not need to stop in the middle of an active investigation.
+
+### Core implementation checkpoint
 
 Implement the core fix, operational preview states, publication readiness, and
-the start of a regression test. If the core behavior is secure, begin the
-feature-flag or performance task.
+the start of a regression test. This should receive the largest share of the
+assessment. The evaluator will normally capture a core snapshot when the main
+correctness work has meaningful shape, around the middle of the session.
 
-### Minutes 65–85
+### AI-review checkpoint
 
-The evaluator will provide an AI-generated patch. Review it as a real pull
-request. Accept, change, or reject individual parts, apply only safe work, and
-record decisions in `AI_PATCH_REVIEW.md`.
+After the core snapshot, the evaluator will provide an AI-generated patch.
+Review it as a real pull request. Accept, change, or reject individual parts,
+apply only safe work, and record decisions in `AI_PATCH_REVIEW.md`. A focused
+review will usually take around 15–20 minutes, but judgment matters more than
+using the entire window.
 
-### Minutes 85–105
+### Requirement-change checkpoint
 
-The evaluator will provide an additional production requirement. Implement as
-much as possible without regressing completed behavior.
+During the final third of the exercise, the evaluator will provide an
+additional production requirement. Implement as much as possible without
+regressing completed behavior. The exact release point may move depending on
+progress, but the evaluator should leave a practical implementation window.
 
-### Minutes 105–120
+### Final verification and handover
 
-Run tests and the build, review changes, remove debugging code, complete the AI
-record, and create `HANDOVER.md` (200 words maximum) for an application manager
-or Support lead. Cover cause, changes, verification, Support checks,
-post-deployment monitoring, recovery/rollback, and remaining risks.
+Reserve approximately the final 15–20 minutes for tests and the build, reviewing
+changes, removing debugging code, completing the AI record, and creating
+`HANDOVER.md` (200 words maximum) for an application manager or Support lead.
+Cover cause, changes, verification, Support checks, post-deployment monitoring,
+recovery/rollback, and remaining risks.
 
 ## Priority
 
@@ -227,9 +198,46 @@ post-deployment monitoring, recovery/rollback, and remaining risks.
 2. Meaningful regression test
 3. Publication validation
 4. Loading, error, empty, and retry states
-5. Feature-flag safety
-6. Catalogue performance
-7. Changed requirement
-8. Visual polish
+5. Changed requirement
+6. Operational handover
 
 A smaller verified implementation is preferable to a larger unverified one.
+
+## Post-assessment product evolution discussion
+
+This discussion is separate from the standardized 120-minute implementation
+exercise. Allow roughly 15–25 minutes for preparation and discussion; the
+evaluator may adapt the balance based on the depth of the conversation.
+
+Assume PromoOps must grow to support:
+
+- 100 active editors
+- 50,000 promotions
+- Additional markets and languages
+- Multiple production releases per week
+
+Choose the two highest-value improvements you would make across editorial
+efficiency, performance and scalability, reliability and observability, UI/UX
+and accessibility, or frontend architecture.
+
+For each recommendation, be ready to explain:
+
+- The current limitation, using evidence from this repository
+- User and business impact
+- The proposed change and alternatives considered
+- Trade-offs, risks, and what you would deliberately not build
+- An incremental rollout or migration plan
+- How you would measure success
+
+The optional high-volume scenario is available through:
+
+```bash
+npm run dev:performance
+```
+
+It runs PromoOps with 1,200 promotion records and may be used as evidence. You
+are not required to implement your product-evolution recommendations during
+the coding exercise.
+
+The discussion is evaluated separately and cannot compensate for failure of
+the core preview-correctness requirements.

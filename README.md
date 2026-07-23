@@ -20,7 +20,8 @@ npm test
 npm run build
 ```
 
-The separate high-volume catalogue scenario can be started with:
+An optional high-volume catalogue, intended for the post-assessment product
+discussion, can be started with:
 
 ```bash
 npm run dev:performance

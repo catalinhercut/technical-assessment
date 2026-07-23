@@ -5,7 +5,6 @@ import {
   updateMockPromotion,
 } from "./api/promotions";
 import { PromotionEditor } from "./components/PromotionEditor";
-import { PromotionActivity } from "./components/PromotionActivity";
 import { PromotionFilters } from "./components/PromotionFilters";
 import { PromotionList } from "./components/PromotionList";
 import { PromotionPreview } from "./components/PromotionPreview";
@@ -247,7 +246,6 @@ function PromotionsWorkspace() {
                       }
                     />
                   </div>
-                  <PromotionActivity promotionId={selectedPromotion.id} />
                 </>
               ) : (
                 <section className="panel empty-workspace">

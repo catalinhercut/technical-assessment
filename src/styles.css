@@ -1133,70 +1133,6 @@ textarea {
   background: #e2dfda;
 }
 
-.activity-panel {
-  overflow: hidden;
-}
-
-.feature-flag-label {
-  padding: 5px 8px;
-  border: 1px solid #dfe1e5;
-  border-radius: 999px;
-  color: #777a82;
-  background: #f7f7f8;
-  font-size: 0.58rem;
-  font-weight: 780;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.activity-timeline {
-  display: grid;
-  margin: 0;
-  padding: 0 19px;
-  list-style: none;
-}
-
-.activity-timeline li {
-  position: relative;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 11px;
-  padding: 14px 0;
-}
-
-.activity-timeline li + li {
-  border-top: 1px solid #edeef0;
-}
-
-.activity-avatar {
-  display: inline-grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border-radius: 50%;
-  color: #645b5e;
-  background: #efedef;
-  font-size: 0.58rem;
-  font-weight: 820;
-}
-
-.activity-timeline strong {
-  font-size: 0.7rem;
-}
-
-.activity-timeline p {
-  margin: 3px 0 0;
-  color: var(--muted);
-  font-size: 0.66rem;
-}
-
-.activity-timeline time {
-  color: #999ca2;
-  font-size: 0.6rem;
-  white-space: nowrap;
-}
-
 .empty-workspace {
   min-height: 300px;
   padding: 50px;
@@ -1558,11 +1494,4 @@ textarea {
     margin-left: 16px;
   }
 
-  .activity-timeline li {
-    grid-template-columns: 32px minmax(0, 1fr);
-  }
-
-  .activity-timeline time {
-    grid-column: 2;
-  }
 }
