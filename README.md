@@ -1,6 +1,6 @@
 # PromoOps frontend assessment
 
-This repository is the starting point for a 120-minute frontend coding
+This repository is the starting point for a 60 - 120 minute frontend coding
 assessment. Read [ASSESSMENT.md](./ASSESSMENT.md) before making changes.
 
 ## Quick start
