@@ -19,7 +19,7 @@ describe("sanitizeCmsHtml", () => {
 
   it("keeps ordinary CMS formatting and safe links", () => {
     const safeHtml =
-      '<p><strong>Offer</strong> <a href="https://example.ch">details</a></p>';
+      '<p><strong>Offer</strong> <a href="https://example.com">details</a></p>';
 
     expect(sanitizeCmsHtml(safeHtml)).toBe(safeHtml);
   });
