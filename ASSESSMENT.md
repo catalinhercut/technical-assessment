@@ -1,243 +1,176 @@
-# Frontend Assessment: Promotion CMS Reliability
+# Frontend Assessment: Promotion CMS — Working Language Switcher
 
-**Duration:** 120 minutes  
-**Technology:** React, TypeScript, CSS, existing test framework  
-**AI tools:** Permitted
+**Duration:** 60 minutes
+**Technology:** React, TypeScript, CSS, existing test framework
+**Tools:** Use whatever tools you'd normally use for this kind of work.
+
+**Goal:** Turn the language selection that is currently buried inside the
+editor into a single, visible, global control, and surface each promotion's
+translation coverage in the list.
 
 ## Business context
 
 PromoOps is an internal CMS used by content editors to prepare multilingual
-online-casino promotions. Editors can browse and filter promotions, select a
+online-casino promotions. Editors browse and filter promotions, select a
 language, edit translated content, preview a promotion, and prepare it for
 publication.
 
-You are joining an unfamiliar existing project. Do not rebuild the application
-or replace its framework.
+You are joining an unfamiliar existing project. Do not rebuild the
+application or replace its framework. Work within the existing dependencies
+(React, TypeScript, CSS, React Router) and do not replace the mocked API
+with static data.
 
-## Support ticket CMS-1842
+## How it works today
 
-Customer Support reports:
+There are four content locales: German (`de`), French (`fr`), Italian
+(`it`), and English (`en`).
 
-> When an editor changes the selected promotion or language quickly, the
-> preview sometimes displays content from the previously selected promotion or
-> language. Editors are concerned that they could review or publish the wrong
-> content.
+The active language already lives as shared state in `PromotionsWorkspace`
+and drives both the Content Editor and the Preview. The only control that
+changes it is a row of language tabs **inside** the Content Editor panel.
+There is no single, obvious place that tells an editor which language they
+are working in, or which promotions are missing translations.
 
-The issue occurs more frequently on slower connections.
+`PublicationReadiness` also exists but is unfinished — completing it is an
+optional bonus (see below), not part of the core task.
 
-Known reproduction:
+## Task
 
-1. Select **Welcome Bonus**.
-2. Select **German**.
-3. Immediately select **Weekend Spins**.
-4. Change the language to **French**.
-5. Wait for all requests to finish.
+Promote the buried language selection to a single, visible, global control,
+and make translation coverage visible at a glance in the list.
 
-The preview may show Welcome Bonus / German while Weekend Spins / French
-remains selected. Changing only the language can produce a similar problem.
+![Working language switcher design brief](docs/design/language-switcher.png)
 
-## Task A: diagnose and fix the preview defect
+The screenshot is a rough draft, not a pixel-perfect spec. Match its intent,
+not its exact spacing or colours — use the existing design system. It shows a
+single working-language switcher in the header, per-locale coverage on each
+list row, and an editor and preview that follow the header switcher with no
+language control of their own.
 
-Investigate the existing implementation and fix the inconsistency.
+Concretely:
 
-The result must:
+1. **Move the language control to the header.** Add a working-language
+   switcher in the workspace header and remove the language tabs from the
+   Content Editor. After this, the header switcher is the only place the
+   language is chosen.
+2. **Preserve the existing sync.** The editor and preview are already driven
+   by one shared language value — keep it that way. Changing the header
+   switcher must update both. Do not introduce a second, independent
+   selection or duplicate the language state.
+3. **Show coverage in the list.** For each promotion, show which of the four
+   locales have a translation and which are missing, and visually
+   distinguish the currently active language among them.
+4. **Keep the language stable across promotions.** Selecting a different
+   promotion must not reset the active language.
+5. **Keep it accessible.** The switcher must be keyboard-operable with clear
+   labels. The active language and the missing-translation state must not be
+   conveyed by colour alone.
 
-- Always show information that belongs to the currently selected promotion and
-  language after loading settles.
-- Keep preview content and operational feedback consistent with the visible
-  selection during rapid interaction and on slow connections.
-- Continue to behave correctly after changing only the language.
-- Leave no unexpected warnings or side effects after navigating away.
-- Distinguish loading, error, empty, and success states.
-- Provide a functional, accessible retry action for the current selection.
-- Never present unrelated content as belonging to the visible selection.
-  Clearly labelled updating content is acceptable.
-- Keep the rest of the application usable while the preview loads.
+### Required test
 
-Work within the existing dependencies, and do not replace the mocked API with
-static data.
+Add at least one deterministic behavioural test that:
 
-## Task B: implement publication readiness
+- Changes the language in the new header switcher and asserts that **both**
+  the Content Editor's shown translation and the Preview's requested locale
+  update accordingly.
+- Asserts that a promotion missing a translation for some locale is shown as
+  missing in the list.
+
+Do not depend on real network timing. A test that only checks that rendering
+returned a container is insufficient.
+
+## If you finish early (bonus)
+
+Attempt these **only** after the switcher and its test are complete and
+verified. They are bonuses — do not sacrifice the core task to reach them.
+If you tackle both, do them in this order.
+
+### Bonus 1 — Complete publication readiness
 
 Complete `PublicationReadiness`. German is always required. Markets add these
 requirements:
 
-| Market | Required language |
-| --- | --- |
-| `CH-DE` | German (`de`) |
-| `CH-FR` | French (`fr`) |
-| `CH-IT` | Italian (`it`) |
+| Market  | Required language |
+| ------- | ----------------- |
+| `CH-DE` | German (`de`)     |
+| `CH-FR` | French (`fr`)     |
+| `CH-IT` | Italian (`it`)    |
 
-Validate each required language only once. Title, body, CTA label, and CTA URL
-must be present; whitespace-only values are invalid. CTA URLs must be valid,
-absolute HTTPS URLs.
+Rules:
 
-The schedule is valid only when both dates are valid and the end is later than
-the start. The start does not need to be in the future.
+- Validate each required language once. Title, body, CTA label, and CTA URL
+  must be present; whitespace-only values are invalid. CTA URLs must be
+  valid, absolute HTTPS URLs.
+- The schedule is valid only when both dates are valid and the end is later
+  than the start. The start need not be in the future.
+- A preview fallback does not satisfy validation for a missing translation.
 
 The panel must:
 
 - Show **Ready to publish** or **Not ready to publish**.
-- Give specific blocking reasons grouped by language or schedule.
+- Give specific blocking reasons, grouped by language or schedule.
 - Distinguish blocking errors from optional-language warnings.
-- Disable Publish while blocking errors exist.
+- Disable Publish while any blocking error exists.
 - Update immediately as content changes.
 
-A preview fallback does not satisfy validation for a missing translation.
+### Bonus 2 — Fix the preview timing defect
 
-## Task C: UX and accessibility
+The preview can briefly show stale content during rapid promotion/language
+switching on slow connections: after the requests settle, it may show the
+previously selected promotion or language instead of the current one. You may
+notice this while testing rapid switching in the core task — that's expected.
+Don't stop to fix it there; leave it for this bonus if you have time.
 
-Keep controls labelled and keyboard-operable. Selected languages must be
-visually and programmatically identifiable. Loading and errors need appropriate
-status/live-region semantics, and Retry needs an accessible name. Do not convey
-disabled publication through colour alone or unexpectedly reset focus.
+## Suggested working flow
 
-The page must not overflow horizontally at a 375-pixel viewport; panels may
-stack at small widths.
+Guidance, not fixed cut-offs. You may rebalance time, provided the final
+submission is ready at the agreed end.
 
-## Required regression test
-
-Add at least one deterministic behavioural regression test for the reported
-incident. It must exercise rapid selection changes, verify the final visible
-content, and fail against the original implementation.
-
-Do not depend on real network timing. A test that only checks that rendering
-returned a container is insufficient. Useful additional tests cover failure and
-retry behavior, readiness, HTTPS validation, and optional translations.
-
-## AI use
-
-AI tools are permitted. You remain responsible for understanding, adapting,
-and verifying submitted work. Do not submit private chain-of-thought or full
-prompt transcripts.
-
-Create `AI_USAGE.md` with:
+**1. Orient (~10 min).** Run the app, review the design brief, and read
+`PromotionsWorkspace`, `PromotionEditor`, `PromotionList`, and
+`PromotionPreview`. Jot a short `APPROACH.md` (≤150 words):
 
 ```md
-## Tool used
-
-## Work delegated to AI
-
-## Suggestions accepted
-
-## Suggestions changed or rejected
-
-## Verification performed
-
-## Remaining risks
-```
-
-Brief factual entries are enough.
-
-## Suggested working flow and checkpoints
-
-The assessment is designed for approximately 120 minutes, but the stages are
-guidance rather than fixed cut-offs. Setup problems, clarification time, and a
-candidate's chosen sequencing may shift a checkpoint. The evaluator will tell
-you before recording a snapshot or introducing new material.
-
-You may rebalance time between stages, provided the final submission is ready
-at the agreed end of the exercise.
-
-### Orientation checkpoint
-
-During the opening part of the exercise—typically the first 15–20 minutes—run
-and reproduce the application, inspect the code, and create `DIAGNOSIS.md`
-(about 250 words maximum):
-
-```md
-## Reproduction
-
-## Suspected root cause
-
+## Current implementation
+## Planned component and state changes
 ## Files likely to change
-
-## Proposed fix
-
 ## Verification plan
-
-## Current uncertainty
 ```
 
-The evaluator may capture an early snapshot once you have recorded a credible
-diagnosis. You do not need to stop in the middle of an active investigation.
+**2. Build (~35 min).** Implement the switcher, remove the editor tabs, add
+the list coverage indicators, and write the required test. This is the bulk
+of the exercise.
 
-### Core implementation checkpoint
-
-Implement the core fix, operational preview states, publication readiness, and
-the start of a regression test. This should receive the largest share of the
-assessment. The evaluator will normally capture a core snapshot when the main
-correctness work has meaningful shape, around the middle of the session.
-
-### AI-review checkpoint
-
-After the core snapshot, the evaluator will provide an AI-generated patch.
-Review it as a real pull request. Accept, change, or reject individual parts,
-apply only safe work, and record decisions in `AI_PATCH_REVIEW.md`. A focused
-review will usually take around 15–20 minutes, but judgment matters more than
-using the entire window.
-
-### Requirement-change checkpoint
-
-During the final third of the exercise, the evaluator will provide an
-additional production requirement. Implement as much as possible without
-regressing completed behavior. The exact release point may move depending on
-progress, but the evaluator should leave a practical implementation window.
-
-### Final verification and handover
-
-Reserve approximately the final 15–20 minutes for tests and the build, reviewing
-changes, removing debugging code, completing the AI record, and creating
-`HANDOVER.md` (200 words maximum) for an application manager or Support lead.
-Cover cause, changes, verification, Support checks, post-deployment monitoring,
-recovery/rollback, and remaining risks.
+**3. Verify and hand over (~10–15 min).** Run the tests and the build,
+review your diff, remove debug code, and write `HANDOVER.md` (≤150 words)
+for an application manager or Support lead: what changed, how you verified
+it, any deliberate deviations from the brief, and remaining risks.
 
 ## Priority
 
-1. Preview consistency
-2. Meaningful regression test
-3. Publication validation
-4. Loading, error, empty, and retry states
-5. Changed requirement
-6. Operational handover
+1. Header switcher correctly drives the editor and preview
+2. A meaningful behavioural test for it
+3. Per-promotion translation-coverage indicators
+4. Keyboard operability and non-colour-only state
+5. Handover
+6. Bonuses, only if 1–5 are done — publication readiness, then the preview
+   timing defect
 
-A smaller verified implementation is preferable to a larger unverified one.
+A smaller verified implementation beats a larger unverified one.
 
-## Post-assessment product evolution discussion
+## Post-assessment discussion (~10 min, separate from the timed window)
 
-This discussion is separate from the standardized 120-minute implementation
-exercise. Allow roughly 15–25 minutes for preparation and discussion; the
-evaluator may adapt the balance based on the depth of the conversation.
+Two short verbal prompts, not hands-on:
 
-Assume PromoOps must grow to support:
+1. **Extend it.** If you didn't reach the publication-readiness bonus, walk
+   through how you'd implement and test it and what could go wrong. If you
+   did, explain the trade-offs you made.
+2. **Scale it up.** Assume PromoOps grows to 100 active editors, 50,000
+   promotions, and multiple releases per week. Name the one change you'd
+   prioritise across performance, reliability, or architecture, and why.
 
-- 100 active editors
-- 50,000 promotions
-- Additional markets and languages
-- Multiple production releases per week
+The optional high-volume scenario (`npm run dev:performance`) may be used as
+supporting evidence for prompt 2.
 
-Choose the two highest-value improvements you would make across editorial
-efficiency, performance and scalability, reliability and observability, UI/UX
-and accessibility, or frontend architecture.
-
-For each recommendation, be ready to explain:
-
-- The current limitation, using evidence from this repository
-- User and business impact
-- The proposed change and alternatives considered
-- Trade-offs, risks, and what you would deliberately not build
-- An incremental rollout or migration plan
-- How you would measure success
-
-The optional high-volume scenario is available through:
-
-```bash
-npm run dev:performance
-```
-
-It runs PromoOps with 1,200 promotion records and may be used as evidence. You
-are not required to implement your product-evolution recommendations during
-the coding exercise.
-
-The discussion is evaluated separately and cannot compensate for failure of
-the core preview-correctness requirements.
+This discussion is evaluated separately and cannot compensate for failure of
+the core switcher requirement.
