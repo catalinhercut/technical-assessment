@@ -620,6 +620,11 @@ p {
   font-weight: 750;
 }
 
+.language-picker legend {
+text-transform: uppercase;
+
+}
+
 select,
 input,
 textarea {

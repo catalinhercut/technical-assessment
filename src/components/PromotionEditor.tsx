@@ -81,27 +81,6 @@ export function PromotionEditor({
         </div>
       </fieldset>
 
-      <fieldset className="language-picker">
-        <legend>Translation language</legend>
-        <div className="language-tabs">
-          {locales.map((item) => (
-            <button
-              type="button"
-              key={item}
-              className="language-tab"
-              data-selected={locale === item}
-              aria-pressed={locale === item}
-              onClick={() => onLocaleChange(item)}
-            >
-              {localeLabels[item]}
-              {!promotion.translations[item] && (
-                <span className="language-tab__missing">Missing</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
       <div className="form-grid">
         <label>
           Title

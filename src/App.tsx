@@ -21,6 +21,8 @@ import type {
   PublicationStatusFilter,
 } from "./models/promotion";
 
+import {AppLanguageSwitcher} from "./components/AppLanguageSwitcher";
+
 function PromotionsWorkspace() {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [status, setStatus] = useState<PublicationStatusFilter>("all");
@@ -150,8 +152,16 @@ function PromotionsWorkspace() {
               </p>
             </div>
             <div className="workspace-controls">
+              <div>
+                <AppLanguageSwitcher   promotion={selectedPromotion}
+                    locale={locale}
+                    onLocaleChange={setLocale}
+                    onPromotionChange={handlePromotionChange}/>
+                </div>
+              <div>
               <span className="sync-note">Last synchronized 2 minutes ago</span>
               <PromotionFilters value={status} onChange={setStatus} />
+              </div>
             </div>
           </section>
 
